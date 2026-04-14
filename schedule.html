@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Schedule – NRCC Berlin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/style.css"/>
+<style>
+.page-hero{padding:140px 5% 60px;background:radial-gradient(ellipse at 30% 50%,rgba(204,17,23,0.15) 0%,transparent 60%),linear-gradient(160deg,#0a0a0a,#1a0505 60%,#0a0a0a);border-bottom:1px solid rgba(204,17,23,0.1);position:relative;overflow:hidden;}
+.page-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,200,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,200,0.03) 1px,transparent 1px);background-size:60px 60px;}
+.page-hero-content{position:relative;z-index:2;}
+
+/* ---- SCHEDULE ---- */
+#schedule-section{background:#0a0a0a;padding:80px 5%;}
+
+/* Filter tabs */
+.schedule-controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;align-items:center;justify-content:space-between;}
+.type-filters{display:flex;gap:8px;flex-wrap:wrap;}
+.type-btn{padding:8px 20px;border-radius:100px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.13);color:rgba(245,240,238,0.65);font-size:0.8rem;font-weight:600;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.type-btn.all.active,.type-btn.all:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.3);color:var(--white);}
+.type-btn.friendly.active,.type-btn.friendly:hover{background:rgba(0,212,200,0.15);border-color:var(--cyan);color:var(--cyan);}
+.type-btn.league.active,.type-btn.league:hover{background:rgba(204,17,23,0.2);border-color:var(--red);color:#ff7a7f;}
+.type-btn.cup.active,.type-btn.cup:hover{background:rgba(255,215,0,0.15);border-color:#ffd700;color:#ffd700;}
+.month-select{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.13);border-radius:8px;padding:8px 14px;color:var(--cream);font-size:0.84rem;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;transition:border-color 0.2s;}
+.month-select:focus{border-color:var(--cyan);}
+.month-select option{background:#1a0505;}
+
+/* Month group header */
+.month-group{margin-bottom:40px;}
+.month-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.month-label{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--white);}
+.month-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(204,17,23,0.4),transparent);}
+.month-count{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(245,240,238,0.4);}
+
+/* Fixture cards */
+.fixtures-grid{display:grid;gap:13px;}
+.fixture-card{background:rgba(255,255,255,0.03);border:1px solid rgba(204,17,23,0.12);border-radius:14px;padding:20px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;transition:all 0.3s;position:relative;overflow:hidden;}
+.fixture-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background 0.2s;}
+.fixture-card:hover{border-color:rgba(0,212,200,0.3);background:rgba(255,255,255,0.05);transform:translateX(4px);}
+.fixture-card:hover::before{background:var(--cyan);}
+.fixture-card.result-win{border-left-color:rgba(0,212,200,0.5);}
+.fixture-card.result-loss{border-left-color:rgba(204,17,23,0.5);}
+
+/* Date block */
+.fixture-date{text-align:center;min-width:60px;flex-shrink:0;}
+.fixture-date .day{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:900;color:var(--red-bright);line-height:1;}
+.fixture-date .month{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(245,240,238,0.45);}
+.fixture-date .year{font-size:0.6rem;color:rgba(245,240,238,0.3);letter-spacing:0.08em;}
+
+/* VS block */
+.fixture-vs{flex:1;display:flex;align-items:center;gap:14px;min-width:0;}
+.team-block{display:flex;flex-direction:column;gap:2px;}
+.team-name{font-weight:700;color:var(--white);font-size:0.94rem;white-space:nowrap;}
+.team-sub{font-size:0.7rem;color:rgba(245,240,238,0.4);}
+.vs-badge{padding:4px 12px;background:rgba(204,17,23,0.18);border-radius:100px;font-size:0.68rem;font-weight:700;letter-spacing:0.12em;color:var(--red-bright);text-transform:uppercase;flex-shrink:0;}
+
+/* Meta */
+.fixture-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.fixture-venue{font-size:0.8rem;color:rgba(245,240,238,0.5);text-align:right;}
+.fixture-time{font-size:0.75rem;color:rgba(245,240,238,0.4);}
+.fixture-type{font-size:0.65rem;padding:3px 11px;border-radius:100px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;display:inline-block;}
+.fixture-type.friendly{background:rgba(0,212,200,0.15);color:var(--cyan);}
+.fixture-type.league{background:rgba(204,17,23,0.2);color:#ff7a7f;}
+.fixture-type.cup{background:rgba(255,215,0,0.15);color:#ffd700;}
+
+/* Result badge */
+.result-badge{font-size:0.72rem;font-weight:700;padding:3px 11px;border-radius:100px;letter-spacing:0.06em;text-transform:uppercase;}
+.result-badge.win{background:rgba(0,212,200,0.2);color:var(--cyan);}
+.result-badge.loss{background:rgba(204,17,23,0.2);color:#ff7a7f;}
+.result-badge.draw{background:rgba(255,215,0,0.15);color:#ffd700;}
+
+/* No fixtures */
+.no-fixtures{text-align:center;padding:56px;color:rgba(245,240,238,0.35);font-size:1rem;}
+
+/* NEXT MATCH BANNER */
+.next-match-banner{background:linear-gradient(135deg,rgba(204,17,23,0.15),rgba(0,212,200,0.08));border:1px solid rgba(0,212,200,0.25);border-radius:16px;padding:28px 32px;margin-bottom:48px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative;overflow:hidden;}
+.next-match-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--cyan));}
+.next-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--cyan);font-weight:700;margin-bottom:4px;}
+.next-teams{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--white);}
+.next-details{display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;}
+.next-detail{font-size:0.82rem;color:var(--grey);display:flex;align-items:center;gap:6px;}
+.next-countdown{margin-left:auto;text-align:center;}
+.countdown-num{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--cyan);line-height:1;}
+.countdown-lbl{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.14em;color:rgba(245,240,238,0.4);}
+
+@media(max-width:900px){
+  .fixture-card{flex-direction:column;align-items:flex-start;gap:12px;}
+  .fixture-meta{align-items:flex-start;}
+  .next-countdown{margin-left:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="index.html">
+    <img class="nav-logo-img" src="lib/nrcc-logo.png" alt="NRCC Berlin Logo"/>
+    <div class="nav-logo-text">
+      <span class="nav-logo-main">NRCC Berlin</span>
+      <span class="nav-logo-sub">Est'd 2020 &middot; Berlin, Germany</span>
+    </div>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="squad.html">Squad</a></li>
+    <li><a href="schedule.html">Schedule</a></li>
+    <li><a href="index.html#join" class="btn-primary" style="padding:8px 20px;font-size:0.8rem;">Join Us</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-grid"></div>
+  <div class="page-hero-content reveal">
+    <div class="section-label">Season 2025</div>
+    <h1 class="section-title">Fixtures &amp; Schedule</h1>
+    <div class="divider"></div>
+    <p class="section-sub">All NRCC Berlin matches for the season. Filter by type or month.</p>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<section id="schedule-section">
+
+  <!-- NEXT MATCH BANNER -->
+  <div class="next-match-banner reveal" id="nextMatchBanner"></div>
+
+  <!-- CONTROLS -->
+  <div class="schedule-controls reveal">
+    <div class="type-filters">
+      <button class="type-btn all active" data-type="all" onclick="setTypeFilter(this)">All Matches</button>
+      <button class="type-btn friendly" data-type="friendly" onclick="setTypeFilter(this)">Friendly</button>
+      <button class="type-btn league" data-type="league" onclick="setTypeFilter(this)">League</button>
+      <button class="type-btn cup" data-type="cup" onclick="setTypeFilter(this)">Cup</button>
+    </div>
+    <select class="month-select" id="monthSelect" onchange="renderSchedule()">
+      <option value="all">All Months</option>
+      <option value="Apr">April</option>
+      <option value="May">May</option>
+      <option value="Jun">June</option>
+      <option value="Jul">July</option>
+      <option value="Aug">August</option>
+      <option value="Sep">September</option>
+    </select>
+  </div>
+
+  <div id="scheduleContainer"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo-wrap">
+    <img class="footer-logo-img" src="lib/nrcc-logo.png" alt="NRCC"/>
+    <span class="footer-logo-text">NRCC Berlin</span>
+  </div>
+  <div class="footer-copy">&copy; 2026 Nepali Rhinos Cricket Club Berlin &middot; Est'd 2020</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="squad.html">Squad</a>
+    <a href="schedule.html">Schedule</a>
+  </div>
+</footer>
+
+<script src="js/shared.js"></script>
+<script>
+// ---- FIXTURE DATA ----
+// Add more fixtures here. result: 'win'|'loss'|'draw'|'' (upcoming)
+const fixtures = [
+  {day:"1",month:"May",home:"NRCC Berlin",away:"NSCA Hamburg",venue:"Hamburg",type:"friendly"},  
+  {day:"30",month:"May",home:"NRCC Berlin",away:"NDCC",venue:"Ziegelbusch Cricket Ground Darmstadt",type:"NRNA Tournament"},
+  {day:"30",month:"May",home:"NRCC Berlin",away:"NCT Giessen",venue:"Ziegelbusch Cricket Ground Darmstadt",type:"NRNA Tournament"},
+];
+
+const monthOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+let activeType = 'all';
+
+// ---- NEXT MATCH BANNER ----
+function buildNextMatchBanner() {
+  const today = new Date();
+  const upcoming = fixtures
+    .filter(f => !f.result)
+    .map(f => ({ ...f, date: new Date(`${f.month} ${f.day} ${f.year}`) }))
+    .filter(f => f.date >= today)
+    .sort((a,b) => a.date - b.date);
+
+  const banner = document.getElementById('nextMatchBanner');
+  if (!upcoming.length) { banner.style.display = 'none'; return; }
+
+  const next = upcoming[0];
+  const diff = Math.ceil((next.date - today) / (1000*60*60*24));
+  const isHome = next.home === 'NRCC Berlin';
+
+  banner.innerHTML = `
+    <div>
+      <div class="next-label">⚡ Next Match</div>
+      <div class="next-teams">${next.home} <span style="color:var(--red-bright);font-size:1rem;">vs</span> ${next.away}</div>
+      <div class="next-details">
+        <div class="next-detail">📅 ${next.day} ${next.month} ${next.year}</div>
+        <div class="next-detail">🕐 ${next.time}</div>
+        <div class="next-detail">📍 ${next.venue}</div>
+        <div class="next-detail">${isHome ? '🏠 Home' : '✈️ Away'}</div>
+        <span class="fixture-type ${next.type}">${next.type}</span>
+      </div>
+    </div>
+    <div class="next-countdown">
+      <div class="countdown-num">${diff}</div>
+      <div class="countdown-lbl">${diff === 1 ? 'Day' : 'Days'} to go</div>
+    </div>
+  `;
+}
+
+// ---- RENDER SCHEDULE ----
+function setTypeFilter(btn) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeType = btn.dataset.type;
+  renderSchedule();
+}
+
+function renderSchedule() {
+  const monthFilter = document.getElementById('monthSelect').value;
+
+  let list = [...fixtures];
+  if (activeType !== 'all') list = list.filter(f => f.type === activeType);
+  if (monthFilter !== 'all') list = list.filter(f => f.month === monthFilter);
+
+  const container = document.getElementById('scheduleContainer');
+  container.innerHTML = '';
+
+  if (!list.length) {
+    container.innerHTML = '<div class="no-fixtures">No matches found for the selected filters.</div>';
+    return;
+  }
+
+  // Group by month
+  const grouped = {};
+  list.forEach(f => {
+    if (!grouped[f.month]) grouped[f.month] = [];
+    grouped[f.month].push(f);
+  });
+
+  // Sort months in calendar order
+  const sortedMonths = Object.keys(grouped).sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+
+  sortedMonths.forEach(month => {
+    const group = document.createElement('div');
+    group.className = 'month-group reveal';
+
+    const count = grouped[month].length;
+    group.innerHTML = `
+      <div class="month-header">
+        <div class="month-label">${fullMonth(month)}</div>
+        <div class="month-line"></div>
+        <div class="month-count">${count} match${count!==1?'es':''}</div>
+      </div>
+      <div class="fixtures-grid" id="grid-${month}"></div>
+    `;
+    container.appendChild(group);
+
+    const grid = group.querySelector('.fixtures-grid');
+    grouped[month].forEach(f => {
+      const isHome = f.home === 'NRCC Berlin';
+      const card = document.createElement('div');
+      card.className = `fixture-card${f.result ? ' result-'+f.result : ''}`;
+      card.innerHTML = `
+        <div class="fixture-date">
+          <div class="day">${f.day}</div>
+          <div class="month">${f.month}</div>
+          <div class="year">${f.year}</div>
+        </div>
+        <div class="fixture-vs">
+          <div class="team-block">
+            <div class="team-name">${f.home}</div>
+            <div class="team-sub">${isHome ? '🏠 Home' : '✈️ Away'}</div>
+          </div>
+          <div class="vs-badge">vs</div>
+          <div class="team-block">
+            <div class="team-name">${f.away}</div>
+          </div>
+        </div>
+        <div class="fixture-meta">
+          <div class="fixture-venue">📍 ${f.venue}</div>
+          <div class="fixture-time">🕐 ${f.time}</div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+            <span class="fixture-type ${f.type}">${f.type}</span>
+            ${f.result ? `<span class="result-badge ${f.result}">${f.result === 'win' ? '✓ Win' : f.result === 'loss' ? '✗ Loss' : '= Draw'}</span>` : ''}
+          </div>
+          ${f.score ? `<div style="font-size:0.72rem;color:rgba(245,240,238,0.4);margin-top:4px;">${f.score}</div>` : ''}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Trigger reveal observer on new elements
+    revealObserver.observe(group);
+  });
+}
+
+function fullMonth(abbr) {
+  const m = { Jan:'January',Feb:'February',Mar:'March',Apr:'April',May:'May',Jun:'June',Jul:'July',Aug:'August',Sep:'September',Oct:'October',Nov:'November',Dec:'December' };
+  return m[abbr] || abbr;
+}
+
+// Expose revealObserver to this file
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+buildNextMatchBanner();
+renderSchedule();
+</script>
+</body>
+</html>

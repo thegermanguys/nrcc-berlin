@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Squad – NRCC Berlin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/style.css"/>
+<style>
+.page-hero{padding:140px 5% 60px;background:radial-gradient(ellipse at 30% 50%,rgba(204,17,23,0.15) 0%,transparent 60%),linear-gradient(160deg,#0a0a0a,#1a0505 60%,#0a0a0a);border-bottom:1px solid rgba(204,17,23,0.1);position:relative;overflow:hidden;}
+.page-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,200,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,200,0.03) 1px,transparent 1px);background-size:60px 60px;}
+.page-hero-content{position:relative;z-index:2;}
+
+/* ---- CONTROLS ---- */
+#squad-section{background:linear-gradient(180deg,#080808 0%,#0a0a0a 100%);padding:80px 5%;}
+.squad-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:32px;align-items:center;justify-content:space-between;}
+.search-box{position:relative;flex:1;min-width:200px;max-width:295px;}
+.search-box input{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 16px 10px 38px;color:var(--cream);font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;}
+.search-box input:focus{border-color:var(--cyan);}
+.search-box input::placeholder{color:rgba(255,255,255,0.3);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.35);}
+.filter-group{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{padding:7px 16px;border-radius:100px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.13);color:rgba(245,240,238,0.65);font-size:0.8rem;font-weight:600;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.filter-btn:hover,.filter-btn.active{background:rgba(204,17,23,0.2);border-color:var(--red);color:var(--cream);}
+.sort-select{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.13);border-radius:8px;padding:8px 14px;color:var(--cream);font-size:0.84rem;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;transition:border-color 0.2s;}
+.sort-select:focus{border-color:var(--cyan);}
+.sort-select option{background:#1a0505;}
+
+/* ---- PLAYER GRID ---- */
+.players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:22px;}
+.player-card{background:rgba(255,255,255,0.03);border:1px solid rgba(204,17,23,0.15);border-radius:16px;padding:28px 18px 22px;text-align:center;transition:all 0.3s;cursor:default;animation:fadeCard 0.4s ease both;position:relative;}
+@keyframes fadeCard{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.player-card:hover{border-color:rgba(0,212,200,0.4);transform:translateY(-5px);box-shadow:0 16px 42px rgba(0,0,0,0.45);}
+
+/* ---- PHOTO CIRCLE ---- */
+.player-photo-wrap{position:relative;width:90px;height:90px;margin:0 auto 16px;}
+.player-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:2.5px solid rgba(204,17,23,0.35);background:linear-gradient(135deg,#3a0505,#1a0505);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;}
+.player-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.player-photo-emoji{font-size:2.2rem;line-height:90px;}
+
+/* Cricket bat badge bottom-right of photo */
+.bat-badge{position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;border:2px solid var(--black);z-index:2;transform:translate(2px,2px);}
+
+/* Captain badge top-right */
+.captain-badge{position:absolute;top:-2px;right:-2px;width:24px;height:24px;background:var(--cyan);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:900;color:#000;border:2px solid var(--black);z-index:3;}
+
+/* Photo upload button on hover */
+.upload-photo-btn{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;cursor:pointer;font-size:0.7rem;color:var(--cyan);font-weight:600;flex-direction:column;gap:3px;border:none;}
+.player-photo-wrap:hover .upload-photo-btn{opacity:1;}
+.upload-photo-btn svg{width:18px;height:18px;fill:var(--cyan);}
+
+.player-name{font-weight:700;color:var(--white);margin-bottom:5px;font-size:0.96rem;}
+.player-role{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--cyan);font-weight:600;margin-bottom:6px;}
+.player-nation{font-size:0.78rem;color:rgba(245,240,238,0.45);}
+.no-results{grid-column:1/-1;text-align:center;padding:56px;color:rgba(245,240,238,0.35);font-size:1rem;}
+
+/* ---- PHOTO INSTRUCTIONS ---- */
+.photo-info-bar{background:rgba(0,212,200,0.06);border:1px solid rgba(0,212,200,0.2);border-radius:12px;padding:18px 24px;margin-bottom:32px;display:flex;align-items:flex-start;gap:14px;}
+.photo-info-icon{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
+.photo-info-text p{color:var(--grey);font-size:0.88rem;line-height:1.6;}
+.photo-info-text strong{color:var(--cyan);}
+code{background:rgba(0,212,200,0.12);border-radius:4px;padding:2px 7px;font-size:0.82em;color:var(--cyan);}
+
+@media(max-width:900px){
+  .players-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+  .squad-controls{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="index.html">
+    <img class="nav-logo-img" src="lib/nrcc-logo.png" alt="NRCC Berlin Logo"/>
+    <div class="nav-logo-text">
+      <span class="nav-logo-main">NRCC Berlin</span>
+      <span class="nav-logo-sub">Est'd 2020 &middot; Berlin, Germany</span>
+    </div>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="squad.html">Squad</a></li>
+    <li><a href="schedule.html">Schedule</a></li>
+    <li><a href="index.html#join" class="btn-primary" style="padding:8px 20px;font-size:0.8rem;">Join Us</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-grid"></div>
+  <div class="page-hero-content reveal">
+    <div class="section-label">The Team</div>
+    <h1 class="section-title">Our Squad</h1>
+    <div class="divider"></div>
+    <p class="section-sub">Meet the Rhinos. Search, filter by role, or sort alphabetically. Hover a photo to upload a player picture.</p>
+  </div>
+</div>
+
+<!-- SQUAD -->
+<section id="squad-section">
+
+  <!-- CONTROLS -->
+  <div class="squad-controls reveal">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="playerSearch" placeholder="Search player..." oninput="filterPlayers()"/>
+    </div>
+    <div class="filter-group">
+      <button class="filter-btn active" data-role="all" onclick="setFilter(this)">All</button>
+      <button class="filter-btn" data-role="Batsman" onclick="setFilter(this)">Batsman</button>
+      <button class="filter-btn" data-role="Bowler" onclick="setFilter(this)">Bowler</button>
+      <button class="filter-btn" data-role="All-Rounder" onclick="setFilter(this)">All-Rounder</button>
+      <button class="filter-btn" data-role="Wicketkeeper" onclick="setFilter(this)">Keeper</button>
+    </div>
+    <select class="sort-select" onchange="filterPlayers()" id="sortSelect">
+      <option value="name">Sort: Name A&ndash;Z</option>
+      <option value="name-desc">Sort: Name Z&ndash;A</option>
+      <option value="role">Sort: Role</option>
+    </select>
+  </div>
+
+  <div class="players-grid" id="playersGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo-wrap">
+    <img class="footer-logo-img" src="lib/nrcc-logo.png" alt="NRCC"/>
+    <span class="footer-logo-text">NRCC Berlin</span>
+  </div>
+  <div class="footer-copy">&copy; 2025 Nepali Rhinos Cricket Club Berlin &middot; Est'd 2020</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="squad.html">Squad</a>
+    <a href="schedule.html">Schedule</a>
+  </div>
+</footer>
+
+<script src="js/shared.js"></script>
+<script>
+// ---- PLAYER DATA ----
+// To add a player: add an entry below.
+// photoFile: filename in lib/players/ (e.g. "awanish.jpg")
+// Leave photoFile empty ("") to show the emoji fallback.
+const players = [
+  {name:"Awanish",role:"All-Rounder",emoji:"🏏⚾︎",captain:true, photoFile:"awanish.jpg"},
+  {name:"Sameer",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Ananta",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Krishna",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Ashim",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Pradeep",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Suraj",role:"All-Rounder",emoji:"🏏🧤⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Mubesh",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Subash",role:"Bowler",emoji:"⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Manoj",role:"Bowler",emoji:"⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Sanjay",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Kshitiz",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Robin",role:"Batsman",emoji:"⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Niwesh",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Lokesh",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Bikash",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Agin",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Nitesh",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Bikram",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Kushal",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Sushant",role:"Batsman",emoji:"⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Pawan",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Shushovan",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Chiranjibi",role:"All-Rounder",emoji:"🏏⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Manish",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Sudip",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Nabin",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Dipesh",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Sujan",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+   {name:"Niroj",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Razu",role:"Batsman",emoji:"🏏", captain:false, photoFile:"rajan-thapa.jpg"},
+  {name:"Dipendra",role:"Bowler",emoji:"⚾︎", captain:false, photoFile:"rajan-thapa.jpg"},
+];
+
+// Browser-session overrides from inline uploads (hover → camera click)
+const sessionPhotos = {};
+
+// ---- RENDER ----
+function buildPhotoSrc(p) {
+  if (sessionPhotos[p.name]) return sessionPhotos[p.name]; // inline upload
+  return p.photoFile ? `lib/players/${p.photoFile}` : null;
+}
+
+function renderPlayers(list) {
+  const grid = document.getElementById('playersGrid');
+  grid.innerHTML = '';
+  if (!list.length) { grid.innerHTML = '<div class="no-results">No players found 🔍</div>'; return; }
+
+  list.forEach((p, i) => {
+    const photoSrc = buildPhotoSrc(p);
+    const photoContent = photoSrc
+      ? `<img src="${photoSrc}" alt="${p.name}" onerror="this.parentElement.innerHTML='<span class=\\'player-photo-emoji\\'>${p.emoji}</span>'">`
+      : `<span class="player-photo-emoji">${p.emoji}</span>`;
+
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    card.style.animationDelay = i * 0.05 + 's';
+    card.innerHTML = `
+      <div class="player-photo-wrap">
+        <div class="player-photo">${photoContent}</div>
+        <div class="bat-badge">🏏</div>
+        ${p.captain ? '<div class="captain-badge">C</div>' : ''}
+        <button class="upload-photo-btn" title="Upload photo for ${p.name}" onclick="triggerPhotoUpload('${p.name}', ${i})">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 13v-4H8l4-4 4 4h-3v4h-2z"/></svg>
+          Photo
+        </button>
+        <input type="file" id="photoInput_${i}" accept="image/*" style="display:none" onchange="handlePlayerPhoto(event,'${p.name}')"/>
+      </div>
+      <div class="player-name">${p.name}${p.captain ? ' 🏅' : ''}</div>
+      <div class="player-role">${p.role}</div>
+      <div class="player-nation">🇳🇵 Berlin</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function triggerPhotoUpload(name, idx) {
+  document.getElementById('photoInput_' + idx).click();
+}
+
+function handlePlayerPhoto(e, name) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  sessionPhotos[name] = url;
+  filterPlayers(); // re-render
+}
+
+// ---- FILTER / SORT ----
+let activeFilter = 'all';
+function setFilter(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.role;
+  filterPlayers();
+}
+function filterPlayers() {
+  const q = document.getElementById('playerSearch').value.toLowerCase();
+  const s = document.getElementById('sortSelect').value;
+  let l = [...players];
+  if (activeFilter !== 'all') l = l.filter(p => p.role === activeFilter);
+  if (q) l = l.filter(p => p.name.toLowerCase().includes(q) || p.role.toLowerCase().includes(q));
+  if (s === 'name') l.sort((a,b) => a.name.localeCompare(b.name));
+  else if (s === 'name-desc') l.sort((a,b) => b.name.localeCompare(a.name));
+  else if (s === 'role') l.sort((a,b) => a.role.localeCompare(b.role));
+  renderPlayers(l);
+}
+
+renderPlayers(players);
+</script>
+</body>
+</html>
